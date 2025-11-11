@@ -1,16 +1,24 @@
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ProductsService } from './products.service'; 
+import { JwtPayload } from '../auth/jwt.strategy'; 
 
 @Controller('products')
 @UseGuards(AuthGuard('jwt')) 
 export class ProductsController {
-  @Get()
-  getProducts(@Req() req) {
-    const clientId = req.user.clientId; 
+  constructor(private readonly productsService: ProductsService) {}
+ @Get()
+  async getProducts(@Req() req) {
+    const userPayload: JwtPayload = req.user;
     
-    return { 
-        message: `Products list for Client ID: ${clientId}`,
-        data: [{ id: 1, name: 'Sample Product' }] 
+    console.log(`Fetching products for Client ID: ${userPayload.clientId}`); 
+
+    const products = await this.productsService.findAll();
+        
+    return {
+        count: products.length,
+        clientId: userPayload.clientId,
+        data: products
     };
   }
 }
