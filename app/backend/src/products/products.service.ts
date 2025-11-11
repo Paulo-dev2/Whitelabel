@@ -17,7 +17,7 @@ export class ProductsService {
       description: product.description,
       price: product.price,
       provider: 'brazilian',
-      image: product.image,
+      image: product.imagem,
     };
   }
 
@@ -28,7 +28,7 @@ export class ProductsService {
       description: product.description,
       price: product.price,
       provider: 'european',
-      image: product.image,
+      image: product.gallery,
     };
   }
 
