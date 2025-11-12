@@ -12,6 +12,8 @@ final productsProvider = StateNotifierProvider<ProductsNotifier, AsyncValue<List
   return ProductsNotifier(productsService, token);
 });
 
+final selectedProviderFilter = StateProvider<String?>((ref) => null);
+
 class ProductsNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
   final ProductsService _productsService;
   final String? _token;
@@ -45,4 +47,13 @@ class ProductsNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
   }
 }
 
-final selectedProviderFilter = StateProvider<String?>((ref) => null);
+final productDetailProvider = FutureProvider.family<ProductModel, String>((ref, id) async {
+  // Observa o token, garantindo que o provider só re-execute se o token mudar (ou se for o primeiro acesso)
+  final token = ref.watch(authProvider.select((state) => state.accessToken));
+  
+  // Cria o ProductsService passando o token
+  final service = ref.watch(productsServiceProvider(token));
+  
+  // Chama o método do service que busca o produto por ID
+  return service.getProductById(id);
+});

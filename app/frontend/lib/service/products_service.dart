@@ -9,7 +9,6 @@ final productsServiceProvider = Provider.family<ProductsService, String?>((ref, 
   return ProductsService(ref.read(dioProvider), token);
 });
 
-
 class ProductsService {
   final Dio _dio;
   final String? _token;
@@ -40,6 +39,36 @@ class ProductsService {
       throw e; 
     } catch (e) {
       throw Exception('Erro desconhecido ao carregar produtos: ${e.toString()}');
+    }
+  }
+
+ Future<ProductModel> getProductById(String id) async {
+    if (_token == null) {
+      throw Exception("Authentication token is missing.");
+    }
+
+    String newId = id.split('-').last;
+    
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/products/$newId', 
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $_token',
+          },
+        ),
+      );
+      
+      if (response.data != null && response.data['data'] != null) {
+        return ProductModel.fromJson(response.data['data']);
+      }
+      
+      throw Exception('Product data not found.');
+      
+    } on DioException catch (e) {
+      throw e;
+    } catch (e) {
+      throw Exception('Failed to load product details: ${e.toString()}');
     }
   }
 }
