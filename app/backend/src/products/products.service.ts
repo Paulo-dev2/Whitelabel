@@ -13,9 +13,9 @@ export class ProductsService {
   private mapBrazilianProduct(product: any): AggregatedProduct {
     return {
       id: `br-${product.id}`,
-      title: product.name,
-      description: product.description,
-      price: product.price,
+      title: product.nome,
+      description: product.descricao,
+      price: product.preco,
       provider: 'brazilian',
       image: product.imagem,
     };
