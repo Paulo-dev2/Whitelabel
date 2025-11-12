@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AggregatedProduct } from './interfaces/product.interface';
 import { catchError, map, firstValueFrom } from 'rxjs';
@@ -63,6 +63,43 @@ export class ProductsService {
       
     } catch (error) {
       throw new InternalServerErrorException('Failed to aggregate products from external providers.');
+    }
+  }
+
+  async findById(id: string): Promise<AggregatedProduct> {
+    const brazilianUrl = `${BRAZILIAN_PROVIDER_URL}/${id}`;
+    const europeanUrl = `${EUROPEAN_PROVIDER_URL}/${id}`;
+
+    const promises = [
+      this.fetchProductFromProvider(brazilianUrl, this.mapBrazilianProduct, 'Brazilian'),
+      this.fetchProductFromProvider(europeanUrl, this.mapEuropeanProduct, 'European'),
+    ];
+
+    const results = await Promise.all(promises);
+
+    const product = results.find(p => p !== null);
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${id}" not found in any provider.`);
+    }
+
+    return product;
+  }
+
+  private async fetchProductFromProvider(
+    url: string,
+    mapper: (data: any) => AggregatedProduct,
+    providerName: string,
+  ): Promise<AggregatedProduct | null> {
+    try {
+      const response = await firstValueFrom(this.httpService.get(url));
+      return mapper(response.data);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        return null;
+      }
+      console.error(`Error fetching from ${providerName} provider: ${error.message}`);
+      return null;
     }
   }
 }
