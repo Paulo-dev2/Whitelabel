@@ -24,7 +24,9 @@ class ClientService {
     try {
       final response = await _dio.get(
         '$_baseUrl/clients/config',
-        queryParameters: {'domain': hostUrl},
+         options: Options(
+          headers: {'Domain': hostUrl}, 
+        ),
       );
 
       return ClientModel.fromJson(response.data);
