@@ -9,4 +9,8 @@ export class UserService {
   async findUserForLogin(email: string, clientId: number): Promise<User> {
     return this.userRepository.findByEmailAndClientId(email, clientId);
   }
+
+  async findByEmail(email: string): Promise<User> {
+    return this.userRepository.findByEmail(email);
+  }
 }

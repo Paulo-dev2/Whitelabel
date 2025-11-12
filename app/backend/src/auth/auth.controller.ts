@@ -11,11 +11,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK) 
   @UsePipes(new ValidationPipe({ whitelist: true })) 
   async login(@Body() loginDto: LoginDto) {
-    
+    const userIsExists: User | null = await this.authService.searchUserByEmail(
+      loginDto.email, 
+    );
+
+    if (!userIsExists) {
+      throw new Error('User not found');
+    }
+
     const user: User | any = await this.authService.validateUser(
       loginDto.email, 
       loginDto.password, 
-      loginDto.clientId
+      userIsExists.clientId
     );
     
     return this.authService.login(user);
