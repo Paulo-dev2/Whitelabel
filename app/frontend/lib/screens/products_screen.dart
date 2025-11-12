@@ -110,7 +110,7 @@ class ProductCard extends StatelessWidget {
             ? Image.network(product.image!, width: 50, height: 50, fit: BoxFit.cover,
                 errorBuilder: (c, o, s) => const Icon(Icons.shopping_bag))
             : const Icon(Icons.shopping_bag),
-        title: Text(product.title),
+        title: Text(product.title ?? 'Produto Sem Nome'),
         subtitle: Text('${product.provider.toUpperCase()} | \$${product.price.toStringAsFixed(2)}'),
         trailing: Text(product.id, style: const TextStyle(fontSize: 12)),
       ),
