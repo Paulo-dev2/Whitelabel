@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/providers/client_provider.dart';
-import 'package:frontend/providers/auth_provider.dart';
+import 'package:frontend/app/providers/client_provider.dart';
+import 'package:frontend/app/providers/auth_provider.dart';
 
 // Tela que será o destino após o login
-import 'package:frontend/screens/products_screen.dart'; 
+import 'package:frontend/app/screens/products_screen.dart'; 
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});

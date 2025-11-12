@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:frontend/models/product_model.dart';
-import 'package:frontend/providers/auth_provider.dart';
-import 'package:frontend/providers/client_provider.dart';
+import 'package:frontend/app/models/product_model.dart';
+import 'package:frontend/app/providers/auth_provider.dart';
+import 'package:frontend/app/providers/client_provider.dart';
 
 const String _baseUrl = 'http://localhost:3000';
 

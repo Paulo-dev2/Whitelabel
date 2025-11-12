@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/models/product_model.dart';
-import 'package:frontend/providers/auth_provider.dart';
-import 'package:frontend/providers/products_provider.dart';
+import 'package:frontend/app/models/product_model.dart';
+import 'package:frontend/app/providers/auth_provider.dart';
+import 'package:frontend/app/providers/products_provider.dart';
 
 final selectedProviderFilter = StateProvider<String?>((ref) => null);
 

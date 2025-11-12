@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:frontend/models/client_model.dart';
+import 'package:frontend/app/models/client_model.dart';
 
 // URL base da API do Backend NestJS
 const String _baseUrl = 'http://localhost:3000';

@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:frontend/providers/client_provider.dart'; // Para acessar o dioProvider
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:frontend/service/auth_service.dart'; // Importa o novo serviço
 
 // Constante para a chave do token no armazenamento local
 const String _accessTokenKey = 'access_token';
-const String _baseUrl = 'http://localhost:3000';
 
-// Estado de Autenticação: Armazena o token e o status de login
+// --- AuthState (Permanece o mesmo) ---
 class AuthState {
   final String? accessToken;
   final bool isLoading;
@@ -15,17 +14,15 @@ class AuthState {
 
   AuthState({this.accessToken, this.isLoading = false, this.errorMessage});
 
-  // Conveniência: Se o token existir, o usuário está logado
   bool get isAuthenticated => accessToken != null;
 
-  // Cria novas instâncias (imutabilidade exigida pelo StateNotifier)
   AuthState copyWith({
     String? accessToken,
     bool? isLoading,
     String? errorMessage,
   }) {
     return AuthState(
-      accessToken: accessToken,
+      accessToken: accessToken ?? this.accessToken,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
@@ -35,21 +32,22 @@ class AuthState {
 // Provedor que gerencia o estado de autenticação (token, status)
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(
-    ref.read(dioProvider),
+    // Injeta o AuthService (responsável pela API)
+    ref.read(authServiceProvider), 
     SharedPreferences.getInstance(),
   );
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final Dio _dio;
+  // Agora injetamos o AuthService e não mais o Dio diretamente
+  final AuthService _authService; 
   final Future<SharedPreferences> _prefsFuture;
 
-  AuthNotifier(this._dio, this._prefsFuture) : super(AuthState()) {
-    // Tenta carregar o token salvo ao iniciar o aplicativo
+  AuthNotifier(this._authService, this._prefsFuture) : super(AuthState()) {
     _loadSavedToken();
   }
 
-  // --- Lógica de persistência ---
+  // --- Lógica de persistência (Permanece a mesma) ---
   Future<void> _loadSavedToken() async {
     final prefs = await _prefsFuture;
     final token = prefs.getString(_accessTokenKey);
@@ -63,7 +61,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await prefs.setString(_accessTokenKey, token);
   }
   
-  // --- Lógica de Login ---
+  // --- Lógica de Login (Agora delega a chamada ao serviço) ---
   Future<void> login({
     required String email,
     required String password,
@@ -72,21 +70,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final response = await _dio.post(
-        '$_baseUrl/auth/login',
-        data: {
-          'email': email,
-          'password': password,
-          'clientId': clientId, // ID do Cliente obtida no passo Whitelabel
-        },
+      // 💡 DELEGAÇÃO: Chama o serviço para fazer a requisição
+      final token = await _authService.login(
+        email: email,
+        password: password,
+        clientId: clientId,
       );
-
-      final token = response.data['access_token'] as String;
       
-      await _saveToken(token); // Salva no Shared Preferences
-      state = AuthState(accessToken: token); // Atualiza o estado do app
+      await _saveToken(token);
+      state = AuthState(accessToken: token, isLoading: false);
 
     } on DioException catch (e) {
+      // Captura o erro do serviço e formata a mensagem para a UI
       final errorMsg = e.response?.data['message'] ?? 'Falha no login.';
       state = state.copyWith(isLoading: false, errorMessage: errorMsg);
     } catch (e) {
@@ -94,7 +89,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // --- Lógica de Logout ---
+  // --- Lógica de Logout (Permanece a mesma) ---
   Future<void> logout() async {
     final prefs = await _prefsFuture;
     await prefs.remove(_accessTokenKey);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/models/client_model.dart';
-import 'package:frontend/providers/client_provider.dart';
-import 'package:frontend/screens/login_screen.dart'; 
+import 'package:frontend/app/models/client_model.dart';
+import 'package:frontend/app/providers/client_provider.dart';
+import 'package:frontend/app/screens/login_screen.dart'; 
 
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
