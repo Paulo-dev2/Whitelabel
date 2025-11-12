@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/providers/auth_provider.dart';
 import 'package:frontend/app/providers/products_provider.dart';
-import 'package:frontend/app/widgets/filter_dropdown.dart'; 
-import 'package:frontend/app/widgets/product_grid_card.dart'; 
+import 'package:frontend/app/widgets/filter_dropdown.dart';
+import 'package:frontend/app/widgets/product_grid_card.dart';
 
-final selectedProviderFilter = StateProvider<String?>((ref) => null);
 
 class ProductsScreen extends ConsumerWidget {
   const ProductsScreen({super.key});
@@ -13,7 +12,7 @@ class ProductsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productsAsyncValue = ref.watch(productsProvider);
-    final filter = ref.watch(selectedProviderFilter);
+    final filter = ref.watch(selectedProviderFilter); 
     final theme = Theme.of(context);
     
     void handleLogout() {
@@ -35,12 +34,12 @@ class ProductsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Catálogo de Produtos'),
         centerTitle: true,
-        elevation: 0,
-        backgroundColor: theme.colorScheme.surface,
-        foregroundColor: theme.colorScheme.onSurface,
+        elevation: 2,
+        backgroundColor: theme.primaryColor, 
+        foregroundColor: Colors.white, 
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: theme.colorScheme.onSurface),
+            icon: const Icon(Icons.logout), 
             onPressed: handleLogout,
             tooltip: 'Sair',
           ),
@@ -48,24 +47,19 @@ class ProductsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Header com filtro
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Card(
+              elevation: 4, 
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: EdgeInsets.zero, 
+              child: Padding(
+                padding: const EdgeInsets.all(8.0), 
+                child: const FilterDropdown(), 
+              ),
             ),
-            child: const FilterDropdown(), // Chama o widget dedicado
           ),
           
-          // Contador de produtos
           if (filteredProducts.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -82,30 +76,29 @@ class ProductsScreen extends ConsumerWidget {
               ),
             ),
           
-          // Lista de produtos
           Expanded(
             child: productsAsyncValue.when(
-              // Estado de Loading
               loading: () => const Center(child: CircularProgressIndicator()),
               
-              // Estado de Erro
               error: (error, stackTrace) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
-                    const SizedBox(height: 16),
-                    Text(
-                      error.toString().contains('Unauthorized') 
-                          ? 'Sessão expirada. Faça login novamente.'
-                          : 'Erro ao carregar produtos.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
+                      const SizedBox(height: 16),
+                      Text(
+                        error.toString().contains('Unauthorized') 
+                            ? 'Sessão expirada. Faça login novamente.'
+                            : 'Erro ao carregar produtos.',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
-              // Estado de Dados
               data: (products) {
                 if (filteredProducts.isEmpty && products.isNotEmpty) {
                    return Center(child: Text('Nenhum produto corresponde ao filtro.', style: TextStyle(color: Colors.grey[500])));
@@ -125,7 +118,7 @@ class ProductsScreen extends ConsumerWidget {
                   ),
                   itemBuilder: (context, index) {
                     final product = filteredProducts[index];
-                    return ProductGridCard(product: product); // Chama o widget dedicado
+                    return ProductGridCard(product: product);
                   },
                 );
               },

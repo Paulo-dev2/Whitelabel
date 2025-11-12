@@ -21,9 +21,10 @@ class FilterDropdown extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
+        // Foca na cor primária do Whitelabel
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.primaryColor),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
         ),
         filled: true,
         fillColor: Colors.white,
