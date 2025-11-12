@@ -2,22 +2,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:frontend/app/models/product_model.dart';
 import 'package:frontend/app/providers/auth_provider.dart';
-import 'package:frontend/app/providers/client_provider.dart';
-
-const String _baseUrl = 'http://localhost:3000';
+import 'package:frontend/service/products_service.dart'; 
 
 final productsProvider = StateNotifierProvider<ProductsNotifier, AsyncValue<List<ProductModel>>>((ref) {
   final token = ref.watch(authProvider.select((state) => state.accessToken));
-  final dio = ref.read(dioProvider);
+  
+  final productsService = ref.watch(productsServiceProvider(token));
 
-  return ProductsNotifier(dio, token);
+  return ProductsNotifier(productsService, token);
 });
 
 class ProductsNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
-  final Dio _dio;
+  final ProductsService _productsService;
   final String? _token;
 
-  ProductsNotifier(this._dio, this._token) : super(const AsyncValue.loading()) {
+  ProductsNotifier(this._productsService, this._token) : super(const AsyncValue.loading()) {
     if (_token != null) {
       fetchProducts();
     } else {
@@ -29,27 +28,19 @@ class ProductsNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
     state = const AsyncValue.loading();
 
     try {
-      final response = await _dio.get(
-        '$_baseUrl/products',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $_token', 
-          },
-        ),
-      );
-
-      final List data = response.data['data'] as List;
-      final products = data.map((item) => ProductModel.fromJson(item)).toList();
+      final products = await _productsService.fetchProducts();
       
       state = AsyncValue.data(products);
 
     } on DioException catch (e) {
-      state = AsyncValue.error(e.response?.data['message'] ?? 'Failed to load products.', StackTrace.current);
+      final errorMsg = e.response?.data['message'] ?? 'Failed to load products.';
+      state = AsyncValue.error(errorMsg, StackTrace.current);
     } catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
     }
   }
   
   void filterByProvider(String? provider) {
+    // ... Implementação de filtro ...
   }
 }
