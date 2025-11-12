@@ -44,3 +44,5 @@ class ProductsNotifier extends StateNotifier<AsyncValue<List<ProductModel>>> {
     // ... Implementação de filtro ...
   }
 }
+
+final selectedProviderFilter = StateProvider<String?>((ref) => null);
