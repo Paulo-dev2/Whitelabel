@@ -5,6 +5,10 @@ import 'package:frontend/app/providers/client_provider.dart';
 import 'package:frontend/app/screens/login_screen.dart'; 
 import 'package:frontend/app/screens/products_screen.dart'; 
 
+import 'package:frontend/app/providers/auth_provider.dart';
+import 'package:frontend/app/screens/products_screen.dart';
+import 'package:frontend/app/screens/login_screen.dart';
+
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
   Map<int, Color> swatch = {};
@@ -37,6 +41,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final clientAsyncValue = ref.watch(clientProvider);
+    final authState = ref.watch(authProvider);
 
     return clientAsyncValue.when(
       loading: () => const Center(
@@ -75,7 +80,9 @@ class MyApp extends ConsumerWidget {
             '/products': (context) => const ProductsScreen(), 
           },
           
-          home: LoginScreen(), 
+          home: authState.isAuthenticated 
+              ? const ProductsScreen() // Se autenticado, vai para Produtos
+              : LoginScreen(),         // Se deslogado, vai para Login
         );
       },
     );
