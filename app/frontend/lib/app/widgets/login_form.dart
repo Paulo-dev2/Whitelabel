@@ -72,7 +72,16 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               ),
             ),
             keyboardType: TextInputType.emailAddress,
-            validator: (value) => value!.isEmpty ? 'Por favor, insira seu e-mail' : null,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, insira seu e-mail.';
+              }
+              final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+              if (!emailRegex.hasMatch(value)) {
+                return 'Formato de e-mail inválido.';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 16.0),
           // Campo Senha

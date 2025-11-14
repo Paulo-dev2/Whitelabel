@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/models/client_model.dart';
 import 'package:frontend/app/providers/client_provider.dart';
 import 'package:frontend/app/screens/login_screen.dart'; 
+import 'package:frontend/app/screens/products_screen.dart'; 
 
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
@@ -23,7 +24,6 @@ MaterialColor createMaterialColor(Color color) {
   }
   return MaterialColor(color.value, swatch);
 }
-
 
 
 void main() {
@@ -68,8 +68,14 @@ class MyApp extends ConsumerWidget {
               backgroundColor: client.primaryColor,
               titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
             ),
+            useMaterial3: true, 
           ),
-          home: const LoginScreen(), 
+          
+          routes: {
+            '/products': (context) => const ProductsScreen(), 
+          },
+          
+          home: LoginScreen(), 
         );
       },
     );

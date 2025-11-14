@@ -32,9 +32,25 @@ class AuthService {
       return token;
 
     } on DioException catch (e) {
-      throw e; 
+      String errorMessage;
+      final errorData = e.response?.data;
+      
+      if (errorData != null && errorData['message'] != null) {
+        final message = errorData['message'];
+
+        if (message is List) {
+          errorMessage = message[0];
+        } else if (message is String) {
+          errorMessage = message;
+        } else {
+          errorMessage = 'Ocorreu um erro de validação desconhecido.';
+        }
+      } else {
+        errorMessage = 'Erro de rede ou servidor indisponível.';
+      }
+      throw DioException(requestOptions:  e.requestOptions, type: e.type , message: errorMessage);
     } catch (e) {
-      throw Exception('Erro desconhecido na API de login.');
+       throw Exception('Erro desconhecido na API de login.');
     }
   }
 }
