@@ -18,21 +18,23 @@ class ClientService {
   ClientService(this._dio);
   
   String getHostFromEnvironment() {
-    if (kIsWeb) {
-      return html.window.location.host; 
-    }
-    
-    return 'alpha.local'; 
+    // if (kIsWeb) {
+          // final host = html.window.location.host;
+          // if (host != 'admin' && !host.contains('localhost')) {
+          //   return host;
+          // }
+    // }
+    // ESTE É O MODO MAIS CONFIÁVEL PARA TESTAR AMBOS OS CLIENTES.
+    return 'alpha.local'; // <<< Troque facilmente para 'beta.local' para testar o outro tema 
   }
 
   Future<ClientModel> fetchClientConfig() async {
-    final fullHost = getHostFromEnvironment(); 
-    final hostUrl = fullHost.split(':')[0]; 
+    final hostUrl = getHostFromEnvironment();
 
     try {
       final response = await _dio.get(
         '$_baseUrl/clients/config',
-        queryParameters: {'domain': hostUrl},
+        queryParameters: {'domain': hostUrl.split(':')[0]},
       );
 
       return ClientModel.fromJson(response.data);

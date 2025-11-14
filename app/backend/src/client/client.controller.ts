@@ -4,27 +4,26 @@ import { Client } from '@prisma/client';
 
 @Controller('clients')
 export class ClientController {
-  constructor(private readonly clientService: ClientService) {}
+  constructor(private readonly clientService: ClientService) {}
 
-  @Get('config')
-  async getClientConfig(
-    @Headers('host') hostHeader: string,
-    @Headers('domain') domainQuery: string
-  ): Promise<Client> {
+  @Get('config')
+  async getClientConfig(
+    @Headers('host') rawHostHeader: string,
+    @Query('domain') domainQuery?: string, 
+  ): Promise<Client> {
+    
+    let hostToUse: string | undefined;
+
+    if (domainQuery) {
+      hostToUse = domainQuery;
+    } else if (rawHostHeader) {
+      hostToUse = rawHostHeader.split(':')[0];
+    }
+
+    if (!hostToUse || hostToUse.length === 0) {
+      throw new HttpException('Host information is missing or invalid.', HttpStatus.BAD_REQUEST);
+    }
     
-    let hostToUse: string | undefined; 
-
-    if (domainQuery) {
-      hostToUse = domainQuery;
-    }
-
-    console.log('Host Header:', hostHeader);
-    console.log('Domain Query:', domainQuery);
-
-    if (!hostToUse || hostToUse.length === 0) {
-      throw new HttpException('Host information is missing or invalid.', HttpStatus.BAD_REQUEST);
-    }
-
-    return this.clientService.getClientConfigByHost(hostToUse);
-  }
+    return this.clientService.getClientConfigByHost(hostToUse);
+  }
 }
