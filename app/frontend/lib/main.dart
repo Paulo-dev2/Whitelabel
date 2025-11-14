@@ -34,7 +34,6 @@ void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -43,47 +42,47 @@ class MyApp extends ConsumerWidget {
     final clientAsyncValue = ref.watch(clientProvider);
     final authState = ref.watch(authProvider);
 
-    return clientAsyncValue.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
-      ),
+    return MaterialApp(
+      title: 'E-commerce',
 
-      error: (e, st) => MaterialApp(
-        home: Scaffold(
+      // Enquanto busca o client, mostra loading
+      home: clientAsyncValue.when(
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+
+        error: (e, st) => Scaffold(
           body: Center(
             child: Padding(
-              padding: const EdgeInsets.all(32.0),
+              padding: EdgeInsets.all(32),
               child: Text(
-                'Erro Fatal de Inicialização: \nO host de acesso não foi identificado ou a API está offline.\n\nDetalhes: $e',
+                'Erro Fatal de Inicialização:\nAPI não encontrada.\n\n$e',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: Colors.red),
               ),
             ),
           ),
         ),
+
+        // Quando tiver client → escolhe login ou produtos
+        data: (client) {
+          return authState.isAuthenticated
+              ? const ProductsScreen()
+              : LoginScreen();
+        },
       ),
 
-      data: (client) {
-        return MaterialApp(
-          title: 'E-commerce ${client.name}',
-          theme: ThemeData(
-            primarySwatch: createMaterialColor(client.primaryColor), 
-            primaryColor: client.primaryColor,
-            appBarTheme: AppBarTheme(
-              backgroundColor: client.primaryColor,
-              titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            useMaterial3: true, 
-          ),
-          
-          routes: {
-            '/products': (context) => const ProductsScreen(), 
-          },
-          
-          home: authState.isAuthenticated 
-              ? const ProductsScreen() // Se autenticado, vai para Produtos
-              : LoginScreen(),         // Se deslogado, vai para Login
-        );
+      theme: clientAsyncValue.maybeWhen(
+        data: (client) => ThemeData(
+          primarySwatch: createMaterialColor(client.primaryColor),
+          primaryColor: client.primaryColor,
+          useMaterial3: true,
+        ),
+        orElse: () => ThemeData.light(),
+      ),
+
+      routes: {
+        '/products': (context) => const ProductsScreen(),
       },
     );
   }

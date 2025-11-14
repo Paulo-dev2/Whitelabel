@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/providers/auth_provider.dart';
 import 'package:frontend/app/providers/products_provider.dart';
+import 'package:frontend/app/screens/login_screen.dart';
 import 'package:frontend/app/widgets/filter_dropdown.dart';
 import 'package:frontend/app/widgets/product_grid_card.dart';
 
@@ -17,6 +18,11 @@ class ProductsScreen extends ConsumerWidget {
     
     void handleLogout() {
       ref.read(authProvider.notifier).logout();
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+        (route) => false,
+      );
     }
 
     final filteredProducts = productsAsyncValue.when(
