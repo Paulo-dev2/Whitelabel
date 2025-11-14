@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/models/client_model.dart';
-import 'package:frontend/app/providers/client_provider.dart'; 
+import 'package:frontend/app/providers/client_provider.dart';
+
+import 'dart:html' if (dart.library.html) 'dart:html' as html;
+import 'package:flutter/foundation.dart';
 
 const String _baseUrl = 'http://localhost:3000';
 
@@ -14,19 +17,22 @@ class ClientService {
 
   ClientService(this._dio);
   
-  String getHostSimulated() {
+  String getHostFromEnvironment() {
+    if (kIsWeb) {
+      return html.window.location.host; 
+    }
+    
     return 'alpha.local'; 
   }
 
   Future<ClientModel> fetchClientConfig() async {
-    final hostUrl = getHostSimulated();
-    
+    final fullHost = getHostFromEnvironment(); 
+    final hostUrl = fullHost.split(':')[0]; 
+
     try {
       final response = await _dio.get(
         '$_baseUrl/clients/config',
-         options: Options(
-          headers: {'Domain': hostUrl}, 
-        ),
+        queryParameters: {'domain': hostUrl},
       );
 
       return ClientModel.fromJson(response.data);
